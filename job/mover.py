@@ -1,12 +1,26 @@
 import os
 import datetime
+import argparse
+
+# Обработка аргументов командной строки
+parser = argparse.ArgumentParser(description="Process daily tasks.")
+parser.add_argument('--today', type=str, help='Date in YYYY-MM-DD format', required=False)
+args = parser.parse_args()
 
 # Задаем путь к папке с заметками
 NOTES_PATH = "/Users/user/Yandex.Disk-maksim.burdygin.localized/Obsidian vault/Daily"
 TEMPLATE_PATH = "/Users/user/Yandex.Disk-maksim.burdygin.localized/Obsidian vault/Templates/Daily.md"
 
 # Вычисляем даты
-today = datetime.date.today()
+if args.today:
+    try:
+        today = datetime.datetime.strptime(args.today, "%Y-%m-%d").date()
+    except ValueError:
+        print("Invalid date format. Use YYYY-MM-DD.")
+        exit()
+else:
+    today = datetime.date.today()
+
 yesterday = today - datetime.timedelta(days=1)
 
 # Формируем имена файлов
@@ -32,39 +46,51 @@ else:
     exit()
 
 y_tasks = []
-ignore_section = False
+ignore_morning = False
+ignore_evening = False
 
-# Считываем звездочки за утреннюю рутину
+# Считываем звездочки за утреннюю и вечернюю рутину
 morning_stars = {}
+evening_stars = {}
 
 with open(yesterday_path, 'r') as yf:
     lines = yf.readlines()
 
     with open(yesterday_path, 'w') as yf:
         for line in lines:
-            if line.startswith("### ") and ignore_section:
-                ignore_section = False
+            if line.startswith("### "):
+                ignore_morning = False
+                ignore_evening = False
 
-            # если строка - задача не из утреннней рутины, переносим ее
-            if line.startswith("- [ ]") and not ignore_section:
+            # если строка - задача не из утреннней или вечерней рутины, переносим ее
+            if line.startswith("- [ ]") and not (ignore_morning or ignore_evening):
                 y_tasks.append(line)
-            elif not ignore_section:
+            elif not (ignore_morning or ignore_evening):
                 yf.write(line)
 
-            # выполненные задачи из утра - оставляем
-            elif line.startswith("- [x]") and ignore_section:
+            # выполненные задачи из утра или вечера - оставляем
+            elif line.startswith("- [x]") and (ignore_morning or ignore_evening):
                 yf.write(line)
 
             # этот иф внизу чтобы заголовок не удаляло
             if line.strip() == "### Morning Routine":
-                ignore_section = True
+                ignore_morning = True
+            elif line.strip() == "### Evening Routine":
+                ignore_evening = True
 
             # считаем кол-во звезд в утренней рутине
-            if line.startswith("- [x]") and ignore_section:
+            if line.startswith("- [x]") and ignore_morning:
                 parts = line.split(" ")
                 task = parts[2]
                 stars = line.count("⭐️")
                 morning_stars[task] = stars + 1
+
+            # считаем кол-во звезд в вечерней рутине
+            if line.startswith("- [x]") and ignore_evening:
+                parts = line.split(" ")
+                task = parts[2]
+                stars = line.count("⭐️")
+                evening_stars[task] = stars + 1
 
 # Если файл сегодняшней заметки не существует - создаем его
 if not os.path.exists(today_path):
@@ -83,6 +109,7 @@ if not has_section:
     lines.append("### Yesterday Tasks\n")
 
 print(f"morning_stars ({morning_stars})")
+print(f"evening_stars ({evening_stars})")
 
 # Добавляем задачи в конец файла
 with open(today_path, 'w') as tf:
@@ -94,6 +121,10 @@ with open(today_path, 'w') as tf:
             # Добавляем звездочки к утренней рутине (которая уже в шаблоне)
             if task in morning_stars:
                 stars = "⭐️" * morning_stars[task]
+                new_line = f"- [ ] {task} {stars}\n"
+                tf.write(new_line)
+            elif task in evening_stars:
+                stars = "⭐️" * evening_stars[task]
                 new_line = f"- [ ] {task} {stars}\n"
                 tf.write(new_line)
             else:
