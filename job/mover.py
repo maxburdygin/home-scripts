@@ -1,6 +1,7 @@
 import os
 import datetime
 import argparse
+import sqlite3
 
 # Обработка аргументов командной строки
 parser = argparse.ArgumentParser(description="Process daily tasks.")
@@ -46,6 +47,7 @@ else:
     exit()
 
 y_tasks = []
+tasks_to_remind = []
 ignore_morning = False
 ignore_evening = False
 
@@ -61,6 +63,11 @@ with open(yesterday_path, 'r') as yf:
             if line.startswith("### "):
                 ignore_morning = False
                 ignore_evening = False
+
+            # Если задача со смайликом 👨🏼‍🎓, добавляем в tasks_to_remind
+            if "👨🏼‍🎓" in line and (line.startswith("- [ ]") or line.startswith("- [x]")):
+                print(f"line is {line}")
+                tasks_to_remind.append(line)
 
             # если строка - задача не из утреннней или вечерней рутины, переносим ее
             if line.startswith("- [ ]") and not (ignore_morning or ignore_evening):
@@ -108,16 +115,51 @@ has_section = any(line.strip() == "### Yesterday Tasks" for line in lines)
 if not has_section:
     lines.append("### Yesterday Tasks\n")
 
-print(f"morning_stars ({morning_stars})")
-print(f"evening_stars ({evening_stars})")
 
-# Добавляем задачи в конец файла
+# Подключение к SQLite и создание таблицы, если она не существует
+conn = sqlite3.connect('taskreminder.db')
+cursor = conn.cursor()
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS taskreminder (
+    date TEXT,
+    task TEXT
+)
+''')
+
+# Обработка задач со смайликом 👨🏼‍🎓
+for task in tasks_to_remind:
+    if task.startswith("- [ ]"):
+        task = task[5:]
+    elif task.startswith("- [x]"):
+        task = task[5:]
+
+    task = task.strip()
+
+    # Удаление даты и зеленой галочки, если они есть
+    if "✅" in task:
+        task = task.split("✅", 1)[0].strip()  # Извлекаем текст задачи до зеленой галочки
+    if "👨🏼‍🎓" in task:
+        task = task.split("👨🏼‍🎓", 1)[0].strip()  # Извлекаем текст задачи до смайлика со шляпкой
+
+    # Вставка задачи в SQLite на разные даты
+    dates = [
+        today,
+        today + datetime.timedelta(days=1),
+        today + datetime.timedelta(days=2),
+        today + datetime.timedelta(days=7),
+        today + datetime.timedelta(days=14),
+        today + datetime.timedelta(days=30)
+    ]
+    print(f"date {dates}, task is {task}")
+    for date in dates:
+        cursor.execute('INSERT INTO taskreminder (date, task) VALUES (?, ?)', (date.strftime("%Y-%m-%d"), task))
+
+# Добавляем задачи в конец файла и в SQLite
 with open(today_path, 'w') as tf:
     for line in lines:
         if line.startswith("- [ ]"):
             parts = line.split(" ")
             task = parts[3].strip()
-            print(f"{task}")
             # Добавляем звездочки к утренней рутине (которая уже в шаблоне)
             if task in morning_stars:
                 stars = "⭐️" * morning_stars[task]
@@ -133,3 +175,17 @@ with open(today_path, 'w') as tf:
             tf.write(line)
     for task in y_tasks:
         tf.write(task)
+
+    # Выбираем задачи за сегодняшний день из таблицы
+    cursor.execute("SELECT task FROM taskreminder WHERE date = ?", (today,))
+    tasks_from_db = cursor.fetchall()
+    print(f"Tasks from db {tasks_from_db}, today is {today}")
+    # Добавляем задачи из таблицы в список y_tasks
+    for task in tasks_from_db:
+        tf.write(f"- [ ] {task[0]}\n")
+        # Удаляем задачу из таблицы taskreminder по её идентификатору
+        cursor.execute("DELETE FROM taskreminder WHERE task = ? and date = ?", (task[0], str(today)))
+
+# Сохранение изменений и закрытие соединения
+conn.commit()
+conn.close()

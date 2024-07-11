@@ -1,7 +1,4 @@
-morning_stars ({'Meditation': 6, 'Push-ups': 6, 'Contrast-shower': 3})
-Meditation
-Yoga
-Breathing
-Plank
-Push-ups
-Contrast-shower
+Traceback (most recent call last):
+  File "/Users/user/IdeaProjects/home-pets/job/mover.py", line 120, in <module>
+    conn = sqlite3.connect('taskreminder.db')
+sqlite3.OperationalError: unable to open database file

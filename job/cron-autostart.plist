@@ -12,8 +12,8 @@
     <key>RunAtLoad</key>
     <true/>
     <key>StandardErrorPath</key>
-    <string>/Users/user/IdeaProjects/home-pets/job/logfile.log</string>
+    <string>/Users/user/IdeaProjects/home-pets/job/logs/mover.log</string>
     <key>StandardOutPath</key>
-    <string>/Users/user/IdeaProjects/home-pets/job/logfile.log</string>
+    <string>/Users/user/IdeaProjects/home-pets/job/logs/mover.log</string>
 </dict>
 </plist>
