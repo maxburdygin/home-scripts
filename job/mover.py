@@ -3,14 +3,17 @@ import datetime
 import argparse
 import sqlite3
 
+from constants import DAILY_NOTES_PATH, DAILY_TEMPLATE_PATH
+
+
 # Обработка аргументов командной строки
 parser = argparse.ArgumentParser(description="Process daily tasks.")
 parser.add_argument('--today', type=str, help='Date in YYYY-MM-DD format', required=False)
 args = parser.parse_args()
 
 # Задаем путь к папке с заметками
-NOTES_PATH = "/Users/user/Yandex.Disk-maksim.burdygin.localized/Obsidian vault/Daily"
-TEMPLATE_PATH = "/Users/user/Yandex.Disk-maksim.burdygin.localized/Obsidian vault/Templates/Daily.md"
+NOTES_PATH = DAILY_NOTES_PATH
+TEMPLATE_PATH = DAILY_TEMPLATE_PATH
 
 # Вычисляем даты
 if args.today:
@@ -148,7 +151,12 @@ for task in tasks_to_remind:
         today + datetime.timedelta(days=2),
         today + datetime.timedelta(days=7),
         today + datetime.timedelta(days=14),
-        today + datetime.timedelta(days=30)
+        today + datetime.timedelta(days=30),
+        today + datetime.timedelta(days=90),
+        today + datetime.timedelta(days=150),
+        today + datetime.timedelta(days=210),
+        today + datetime.timedelta(days=270),
+        today + datetime.timedelta(days=330)
     ]
     print(f"date {dates}, task is {task}")
     for date in dates:

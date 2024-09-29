@@ -2,9 +2,11 @@ import os
 import datetime
 import subprocess
 
+from constants import LAST_PROCESSED_FILE_PATH, MOVER_SCRIPT_PATH
+
 # Путь к файлу, в котором хранится дата последнего запуска
-LAST_PROCESSED_FILE = "/Users/user/Yandex.Disk-maksim.burdygin.localized/Obsidian vault/Daily/lastdayprocessed.md"
-MOVER_SCRIPT = "/Users/user/IdeaProjects/home-pets/job/mover.py"
+LAST_PROCESSED_FILE = LAST_PROCESSED_FILE_PATH
+MOVER_SCRIPT = MOVER_SCRIPT_PATH
 
 def get_last_processed_date():
     if os.path.exists(LAST_PROCESSED_FILE):

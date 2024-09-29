@@ -19,7 +19,7 @@ import os
 #     print("Database does not exist.")
 
 # Подключаемся к базе данных
-conn = sqlite3.connect('taskreminder.db')
+conn = sqlite3.connect('/Users/user/IdeaProjects/home-pets/job/db/budget.db')
 
 # Создаем курсор
 cursor = conn.cursor()
@@ -35,30 +35,17 @@ print("Tables in the database:")
 for table in tables:
     print(table[0])
 
+# Извлекаем данные из таблицы
+cursor.execute("SELECT * FROM asset")
+rows = cursor.fetchall()
 
-# Подключаемся к базе данных
-conn = sqlite3.connect('taskreminder.db')
-cursor = conn.cursor()
-
-# Проверяем наличие таблицы
-cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='taskreminder';")
-table_exists = cursor.fetchone()
-
-if table_exists:
-    print("Таблица 'taskreminder' существует.")
-
-    # Извлекаем данные из таблицы
-    cursor.execute("SELECT * FROM taskreminder;")
-    rows = cursor.fetchall()
-
-    if rows:
-        print("Данные в таблице 'taskreminder':")
-        for row in rows:
-            print(row)
-    else:
-        print("Таблица 'taskreminder' пуста.")
+if rows:
+    print("Данные в таблице 'asset':")
+    for row in rows:
+        print(row)
 else:
-    print("Таблица 'taskreminder' не найдена.")
+    print("Таблица 'asset' пуста.")
+    print("Таблица 'asset' пуста.")
 
 # Закрываем соединение с базой данных
 conn.close()
