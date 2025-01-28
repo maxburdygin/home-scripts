@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/user/IdeaProjects/home-pets/job/mover.py", line 120, in <module>
-    conn = sqlite3.connect('taskreminder.db')
-sqlite3.OperationalError: unable to open database file

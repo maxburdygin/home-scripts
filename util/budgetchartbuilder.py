@@ -1,9 +1,11 @@
 import sqlite3
 from datetime import datetime, timedelta
+from constants import BUDGET_DB_PATH
+
 
 # Шаг 1: Подключение к базе данных и извлечение данных за последний год
 def fetch_recent_assets():
-    conn = sqlite3.connect('/Users/user/IdeaProjects/home-pets/job/db/budget.db')
+    conn = sqlite3.connect(BUDGET_DB_PATH)
     cursor = conn.cursor()
     query = '''
     SELECT date, amount_eur, amount_usd

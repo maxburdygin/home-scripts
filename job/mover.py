@@ -1,9 +1,13 @@
+import sys
 import os
 import datetime
 import argparse
 import sqlite3
 
-from constants import DAILY_NOTES_PATH, DAILY_TEMPLATE_PATH
+# Добавляем корневую директорию в путь поиска модулей
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from util.constants import DAILY_NOTES_PATH, DAILY_TEMPLATE_PATH, TASK_DB_PATH
 
 
 # Обработка аргументов командной строки
@@ -120,7 +124,7 @@ if not has_section:
 
 
 # Подключение к SQLite и создание таблицы, если она не существует
-conn = sqlite3.connect('taskreminder.db')
+conn = sqlite3.connect(TASK_DB_PATH)
 cursor = conn.cursor()
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS taskreminder (
