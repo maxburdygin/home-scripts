@@ -6,7 +6,7 @@ import subprocess
 # Добавляем корневую директорию в путь поиска модулей
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from util.budgetassetsfinder import find_budget_notes, extract_and_format_date
+# from util.budgetassetsfinder import find_budget_notes, extract_and_format_date
 from util.constants import MOVER_SCRIPT_PATH, LAST_DAILY_UPDATE, LAST_BUDGET_NOTE_DATE, BASE_NOTES_PATH
 from util.utils import read_param_from_config, update_param_in_config
 
@@ -29,29 +29,32 @@ def daily_note_processor():
         return
 
     # Запуск основного скрипта
+    print(f"Run today's script - {today_str}")
     subprocess.run(["python3", MOVER_SCRIPT, "--today", today_str])
+
     # Обновление даты последней обработки
+    print(f"Update param {LAST_DAILY_UPDATE} for {today_str}")
     update_param_in_config(LAST_DAILY_UPDATE, today_str)
 
-def budget_processor():
-    last_processed_date = datetime.datetime.strptime(LAST_BUDGET_DATE, "%Y-%m-%d").date()
-    # Кол-во дней гэпа между бюджетными заметками
-    next_proposed_date = last_processed_date + datetime.timedelta(days=14)
-    today = datetime.date.today()
-    print(f"Last budget note was on {last_processed_date}, Today is {today}, next note to be {next_proposed_date}")
-
-    # Получение последней даты заметки
-    budget_notes = find_budget_notes(BASE_NOTES_PATH)
-    if budget_notes:
-        latest_note = max(budget_notes)
-        print(f"max note is {latest_note}")
-        formatted_date = extract_and_format_date(latest_note)
-        form_date = datetime.datetime.strptime(formatted_date, "%Y-%m-%d").date()
-        if (form_date >= last_processed_date):
-            update_param_in_config('LAST_BUDGET_NOTE_DATE', formatted_date)
-            print(f"Последняя Заметка с бюджетом обновлена на - {formatted_date}")
-    else:
-        print("Заметки с бюджетом не найдены.")
+# def budget_processor():
+#     last_processed_date = datetime.datetime.strptime(LAST_BUDGET_DATE, "%Y-%m-%d").date()
+#     # Кол-во дней гэпа между бюджетными заметками
+#     next_proposed_date = last_processed_date + datetime.timedelta(days=14)
+#     today = datetime.date.today()
+#     print(f"Last budget note was on {last_processed_date}, Today is {today}, next note to be {next_proposed_date}")
+#
+#     # Получение последней даты заметки
+#     budget_notes = find_budget_notes(BASE_NOTES_PATH)
+#     if budget_notes:
+#         latest_note = max(budget_notes)
+#         print(f"max note is {latest_note}")
+#         formatted_date = extract_and_format_date(latest_note)
+#         form_date = datetime.datetime.strptime(formatted_date, "%Y-%m-%d").date()
+#         if (form_date >= last_processed_date):
+#             update_param_in_config('LAST_BUDGET_NOTE_DATE', formatted_date)
+#             print(f"Последняя Заметка с бюджетом обновлена на - {formatted_date}")
+#     else:
+#         print("Заметки с бюджетом не найдены.")
 
     # 1 - смотрим в бюджетные заметки, определяем последнюю, если дата не совпадает с конфигом переписываем конфиг
 
@@ -65,4 +68,4 @@ def budget_processor():
 
 if __name__ == "__main__":
     daily_note_processor()
-    budget_processor()
+    # budget_processor()

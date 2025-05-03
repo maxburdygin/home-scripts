@@ -74,15 +74,15 @@ def save_to_db(db_path, date_str, eur_amount, usd_amount):
     conn.close()
 
 
-# # Пример использования
-# budget_notes = find_budget_notes(notes_dir)
-# print(budget_notes)
-#
-# # Основная логика
-# db_path = BUDGET_DB_PATH
-#
-# for note_path in budget_notes:
-#     date_str, eur_amount, usd_amount = extract_asset_data(note_path)
-#     if eur_amount and usd_amount:
-#         save_to_db(db_path, date_str, eur_amount, usd_amount)
-#         print(f"Данные сохранены: {date_str}, {eur_amount}, {usd_amount}")
+# Пример использования
+budget_notes = find_budget_notes(notes_dir)
+print(budget_notes)
+
+# Основная логика
+db_path = BUDGET_DB_PATH
+
+for note_path in budget_notes:
+    date_str, eur_amount, usd_amount = extract_asset_data(note_path)
+    if eur_amount and usd_amount:
+        save_to_db(db_path, date_str, eur_amount, usd_amount)
+        print(f"Данные сохранены: {date_str}, {eur_amount}, {usd_amount}")
