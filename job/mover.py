@@ -87,9 +87,9 @@ with open(yesterday_path, 'r') as yf:
                 yf.write(line)
 
             # этот иф внизу чтобы заголовок не удаляло
-            if line.strip() == "### Morning Routine":
+            if line.strip() == "### Routine":
                 ignore_morning = True
-            elif line.strip() == "### Evening Routine":
+            elif line.strip() == "### Routine":
                 ignore_evening = True
 
             # считаем кол-во звезд в утренней рутине

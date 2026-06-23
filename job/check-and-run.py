@@ -19,22 +19,21 @@ LAST_BUDGET_DATE = read_param_from_config(LAST_BUDGET_NOTE_DATE)
 
 def daily_note_processor():
     last_processed_date = datetime.datetime.strptime(LAST_PROCESSED_DATE, "%Y-%m-%d").date()
-    today_processing = last_processed_date + datetime.timedelta(days=1)
     today = datetime.date.today()
-    today_str = today_processing.strftime("%Y-%m-%d")
-    print(f"Started at {datetime.datetime.now()}, Today is {today_str}, Last processed {last_processed_date}, next {today_processing}")
 
-    if last_processed_date == today:
+    print(f"Started at {datetime.datetime.now()}, last processed {last_processed_date}, today {today}")
+
+    if last_processed_date >= today:
         print("Already processed for today.")
         return
 
-    # Запуск основного скрипта
-    print(f"Run today's script - {today_str}")
-    subprocess.run(["python3", MOVER_SCRIPT, "--today", today_str])
-
-    # Обновление даты последней обработки
-    print(f"Update param {LAST_DAILY_UPDATE} for {today_str}")
-    update_param_in_config(LAST_DAILY_UPDATE, today_str)
+    current = last_processed_date + datetime.timedelta(days=1)
+    while current <= today:
+        current_str = current.strftime("%Y-%m-%d")
+        print(f"Processing {current_str}...")
+        subprocess.run(["python3", MOVER_SCRIPT, "--today", current_str])
+        update_param_in_config(LAST_DAILY_UPDATE, current_str)
+        current += datetime.timedelta(days=1)
 
 # def budget_processor():
 #     last_processed_date = datetime.datetime.strptime(LAST_BUDGET_DATE, "%Y-%m-%d").date()
